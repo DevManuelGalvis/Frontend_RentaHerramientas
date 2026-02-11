@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Proveedor - RentTools</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="../index.html" class="navbar-brand">🔧 RentTools</a>
+            <ul class="navbar-menu">
+                <li><span id="user-name"></span></li>
+                <li><a href="#" onclick="AuthManager.logout()">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Panel de Proveedor</h1>
+                <p>Gestiona tus herramientas y reservas</p>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3 id="total-herramientas">0</h3>
+                    <p>Mis Herramientas</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <h3 id="total-reservas">0</h3>
+                    <p>Reservas</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <h3 id="herramientas-disponibles">0</h3>
+                    <p>Disponibles</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <h3 id="devoluciones-pendientes">0</h3>
+                    <p>Devoluciones Pendientes</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="card">
+                <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-sm btn-primary tab-btn active" data-tab="herramientas">Mis Herramientas</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="reservas">Reservas</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="devoluciones">Devoluciones</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="facturas">Facturas</button>
+                </div>
+
+                <!-- Tab: Herramientas -->
+                <div id="tab-herramientas" class="tab-content">
+                    <div class="d-flex justify-between align-center mb-3">
+                        <h2>Mis Herramientas</h2>
+                        <button class="btn btn-primary btn-sm" onclick="abrirModalHerramienta()">Agregar Herramienta</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tabla-herramientas">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Marca</th>
+                                    <th>Precio/Día</th>
+                                    <th>Disponible</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Reservas -->
+                <div id="tab-reservas" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Reservas de mis Herramientas</h2>
+                    <div class="table-container">
+                        <table id="tabla-reservas">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Herramienta</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Días</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Devoluciones -->
+                <div id="tab-devoluciones" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Devoluciones de Equipos</h2>
+                    <div class="table-container">
+                        <table id="tabla-devoluciones">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Reserva ID</th>
+                                    <th>Fecha Devolución</th>
+                                    <th>Estado Equipo</th>
+                                    <th>Reporte de Daños</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Facturas -->
+                <div id="tab-facturas" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Mis Facturas</h2>
+                    <div class="table-container">
+                        <table id="tabla-facturas">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>N° Factura</th>
+                                    <th>Fecha Emisión</th>
+                                    <th>Total</th>
+                                    <th>PDF</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Herramienta -->
+    <div id="modal-herramienta" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-herramienta-title">Agregar Herramienta</h3>
+                <button class="modal-close" onclick="cerrarModalHerramienta()">&times;</button>
+            </div>
+            <form id="form-herramienta">
+                <input type="hidden" name="id">
+                <input type="hidden" name="proveedorId" id="proveedorId">
+                
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <select name="categoriaId" class="form-control" required id="select-categoria"></select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Marca</label>
+                    <input type="text" name="marca" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <input type="text" name="modelo" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>URL de Imagen</label>
+                    <input type="url" name="imagenUrl" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Precio por Día *</label>
+                    <input type="number" name="precioPorDia" class="form-control" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Precio por Semana</label>
+                    <input type="number" name="precioPorSemana" class="form-control" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>Estado *</label>
+                    <select name="estado" class="form-control" required>
+                        <option value="DISPONIBLE">Disponible</option>
+                        <option value="MANTENIMIENTO">Mantenimiento</option>
+                        <option value="DANADA">Dañada</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cantidad Disponible *</label>
+                    <input type="number" name="cantidadDisponible" class="form-control" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="disponible" checked> Disponible para alquiler
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>Especificaciones Técnicas</label>
+                    <textarea name="especificacionesTecnicas" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/proveedor.js"></script>
+</body>
+</html>

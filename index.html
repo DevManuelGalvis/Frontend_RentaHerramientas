@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentTools - Alquiler de Herramientas</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="index.html" class="navbar-brand">🔧 RentTools</a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#herramientas">Herramientas</a></li>
+                <li><a href="login.html">Iniciar Sesión</a></li>
+                <li><a href="register.html">Registrarse</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Alquiler de Herramientas y Equipos</h1>
+            <p>Encuentra las mejores herramientas para tu proyecto</p>
+            <div>
+                <a href="register.html" class="btn btn-primary">Comenzar Ahora</a>
+                <a href="#herramientas" class="btn btn-secondary">Ver Herramientas</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="categorias" class="container" style="padding: 3rem 0;">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Categorías Disponibles</h2>
+        <div id="categorias-list" class="grid grid-3"></div>
+    </section>
+
+    <section id="herramientas" class="container" style="padding: 3rem 0;">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Herramientas Disponibles</h2>
+        <div class="mb-3">
+            <select id="filtro-categoria" class="form-control" style="max-width: 300px;">
+                <option value="">Todas las categorías</option>
+            </select>
+        </div>
+        <div id="herramientas-list" class="grid grid-3"></div>
+    </section>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let categorias = [];
+        let herramientas = [];
+
+        async function cargarCategorias() {
+            try {
+                categorias = await ApiClient.get(API_ENDPOINTS.CATEGORIAS);
+                mostrarCategorias();
+                llenarFiltroCategorias();
+            } catch (error) {
+                console.error('Error al cargar categorías:', error);
+            }
+        }
+
+        function mostrarCategorias() {
+            const container = document.getElementById('categorias-list');
+            container.innerHTML = categorias.map(cat => `
+                <div class="card">
+                    <h3>${cat.nombre}</h3>
+                    <p>${cat.descripcion || 'Sin descripción'}</p>
+                </div>
+            `).join('');
+        }
+
+        function llenarFiltroCategorias() {
+            const select = document.getElementById('filtro-categoria');
+            categorias.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        async function cargarHerramientas(categoriaId = null) {
+            try {
+                const url = categoriaId 
+                    ? `${API_ENDPOINTS.HERRAMIENTAS}/categoria/${categoriaId}/disponibles`
+                    : API_ENDPOINTS.HERRAMIENTAS_DISPONIBLES;
+                herramientas = await ApiClient.get(url);
+                mostrarHerramientas();
+            } catch (error) {
+                console.error('Error al cargar herramientas:', error);
+            }
+        }
+
+        function mostrarHerramientas() {
+            const container = document.getElementById('herramientas-list');
+            if (herramientas.length === 0) {
+                container.innerHTML = '<p class="text-center">No hay herramientas disponibles</p>';
+                return;
+            }
+
+            container.innerHTML = herramientas.map(h => `
+                <div class="card">
+                    ${h.imagenUrl ? `<img src="${h.imagenUrl}" alt="${h.nombre}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 0.5rem; margin-bottom: 1rem;">` : ''}
+                    <h3>${h.nombre}</h3>
+                    <p><strong>Categoría:</strong> ${h.nombreCategoria}</p>
+                    <p><strong>Proveedor:</strong> ${h.nombreProveedor}</p>
+                    <p><strong>Marca:</strong> ${h.marca || 'N/A'}</p>
+                    <p><strong>Precio por día:</strong> $${h.precioPorDia}</p>
+                    ${h.precioPorSemana ? `<p><strong>Precio por semana:</strong> $${h.precioPorSemana}</p>` : ''}
+                    <p><strong>Disponibles:</strong> ${h.cantidadDisponible}</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">${h.descripcion || ''}</p>
+                    <a href="register.html" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Alquilar</a>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('filtro-categoria').addEventListener('change', (e) => {
+            const categoriaId = e.target.value;
+            cargarHerramientas(categoriaId || null);
+        });
+
+        // Cargar datos al inicio
+        cargarCategorias();
+        cargarHerramientas();
+    </script>
+</body>
+</html>

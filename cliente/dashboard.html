@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Cliente - RentTools</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="../index.html" class="navbar-brand">🔧 RentTools</a>
+            <ul class="navbar-menu">
+                <li><span id="user-name"></span></li>
+                <li><a href="#" onclick="AuthManager.logout()">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Panel de Cliente</h1>
+                <p>Alquila herramientas y gestiona tus reservas</p>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3 id="total-reservas">0</h3>
+                    <p>Mis Reservas</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <h3 id="reservas-activas">0</h3>
+                    <p>Reservas Activas</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <h3 id="total-pagos">0</h3>
+                    <p>Pagos Realizados</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <h3 id="total-gastado">$0</h3>
+                    <p>Total Gastado</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="card">
+                <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-sm btn-primary tab-btn active" data-tab="herramientas">Explorar Herramientas</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="reservas">Mis Reservas</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="pagos">Mis Pagos</button>
+                </div>
+
+                <!-- Tab: Herramientas -->
+                <div id="tab-herramientas" class="tab-content">
+                    <h2 class="mb-3">Herramientas Disponibles</h2>
+                    <div class="mb-3">
+                        <select id="filtro-categoria" class="form-control" style="max-width: 300px;">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                    </div>
+                    <div id="herramientas-grid" class="grid grid-3"></div>
+                </div>
+
+                <!-- Tab: Reservas -->
+                <div id="tab-reservas" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Mis Reservas</h2>
+                    <div class="table-container">
+                        <table id="tabla-reservas">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Herramienta</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Días</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Pagos -->
+                <div id="tab-pagos" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Mis Pagos</h2>
+                    <div class="table-container">
+                        <table id="tabla-pagos">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Reserva ID</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>N° Transacción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Reserva -->
+    <div id="modal-reserva" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Crear Reserva</h3>
+                <button class="modal-close" onclick="cerrarModalReserva()">&times;</button>
+            </div>
+            <div id="herramienta-info" class="mb-3"></div>
+            <form id="form-reserva">
+                <input type="hidden" name="clienteId" id="clienteId">
+                <input type="hidden" name="herramientaId" id="herramientaId">
+                
+                <div class="form-group">
+                    <label>Fecha de Inicio *</label>
+                    <input type="date" name="fechaInicio" class="form-control" required id="fechaInicio">
+                </div>
+                
+                <div class="form-group">
+                    <label>Fecha de Fin *</label>
+                    <input type="date" name="fechaFin" class="form-control" required id="fechaFin">
+                </div>
+                
+                <div class="form-group">
+                    <label>Dirección de Entrega</label>
+                    <input type="text" name="direccionEntrega" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Notas adicionales</label>
+                    <textarea name="notasCliente" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Días de alquiler:</strong> <span id="dias-alquiler">0</span><br>
+                    <strong>Costo total:</strong> $<span id="costo-total">0.00</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Pago -->
+    <div id="modal-pago" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Pago</h3>
+                <button class="modal-close" onclick="cerrarModalPago()">&times;</button>
+            </div>
+            <form id="form-pago">
+                <input type="hidden" name="reservaId" id="pagoReservaId">
+                
+                <div class="alert alert-info">
+                    <strong>Monto a pagar:</strong> $<span id="monto-pagar">0.00</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Método de Pago *</label>
+                    <select name="metodoPago" class="form-control" required>
+                        <option value="TARJETA_CREDITO">Tarjeta de Crédito</option>
+                        <option value="TARJETA_DEBITO">Tarjeta de Débito</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                        <option value="EFECTIVO">Efectivo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Número de Transacción *</label>
+                    <input type="text" name="numeroTransaccion" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Comprobante de Pago (URL)</label>
+                    <input type="url" name="comprobantePago" class="form-control">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Registrar Pago</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Devolución -->
+    <div id="modal-devolucion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Devolución</h3>
+                <button class="modal-close" onclick="cerrarModalDevolucion()">&times;</button>
+            </div>
+            <form id="form-devolucion">
+                <input type="hidden" name="reservaId" id="devolucionReservaId">
+                
+                <div class="form-group">
+                    <label>Estado del Equipo *</label>
+                    <select name="estadoEquipo" class="form-control" required>
+                        <option value="EXCELENTE">Excelente</option>
+                        <option value="BUENO">Bueno</option>
+                        <option value="REGULAR">Regular</option>
+                        <option value="DANADO">Dañado</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Reporte de Daños</label>
+                    <textarea name="reporteDanos" class="form-control" rows="3" placeholder="Describe cualquier daño o problema encontrado"></textarea>
+                </div>
+                
+                <input type="hidden" name="aceptadoPorProveedor" value="false">
+                
+                <button type="submit" class="btn btn-primary">Registrar Devolución</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cliente.js"></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrarse - RentTools</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="index.html" class="navbar-brand">🔧 RentTools</a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="login.html">Iniciar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="form-container" style="max-width: 600px;">
+        <h2 class="text-center mb-3">Crear Cuenta</h2>
+        
+        <div id="alert-container"></div>
+        
+        <form id="register-form">
+            <div class="form-group">
+                <label for="nombre">Nombre *</label>
+                <input type="text" id="nombre" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="apellido">Apellido *</label>
+                <input type="text" id="apellido" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña * (mínimo 6 caracteres)</label>
+                <input type="password" id="password" class="form-control" required minlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="direccion">Dirección</label>
+                <input type="text" id="direccion" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="rol">Tipo de cuenta *</label>
+                <select id="rol" class="form-control" required>
+                    <option value="">Selecciona...</option>
+                    <option value="CLIENTE">Cliente</option>
+                    <option value="PROVEEDOR">Proveedor</option>
+                </select>
+            </div>
+            
+            <!-- Campos específicos para CLIENTE -->
+            <div id="cliente-fields" style="display: none;">
+                <div class="form-group">
+                    <label for="documentoIdentidad">Documento de Identidad</label>
+                    <input type="text" id="documentoIdentidad" class="form-control">
+                </div>
+            </div>
+            
+            <!-- Campos específicos para PROVEEDOR -->
+            <div id="proveedor-fields" style="display: none;">
+                <div class="form-group">
+                    <label for="nombreEmpresa">Nombre de la Empresa *</label>
+                    <input type="text" id="nombreEmpresa" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="rut">RUT *</label>
+                    <input type="text" id="rut" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="descripcion">Descripción de la Empresa</label>
+                    <textarea id="descripcion" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarse</button>
+        </form>
+        
+        <p class="text-center mt-3">
+            ¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a>
+        </p>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Redirigir si ya está autenticado
+        if (AuthManager.isAuthenticated()) {
+            AuthManager.redirectToDashboard();
+        }
+
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Mostrar/ocultar campos según el rol seleccionado
+        document.getElementById('rol').addEventListener('change', (e) => {
+            const rol = e.target.value;
+            const clienteFields = document.getElementById('cliente-fields');
+            const proveedorFields = document.getElementById('proveedor-fields');
+            
+            clienteFields.style.display = 'none';
+            proveedorFields.style.display = 'none';
+            
+            if (rol === 'CLIENTE') {
+                clienteFields.style.display = 'block';
+            } else if (rol === 'PROVEEDOR') {
+                proveedorFields.style.display = 'block';
+                document.getElementById('nombreEmpresa').required = true;
+                document.getElementById('rut').required = true;
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const rol = document.getElementById('rol').value;
+            
+            const data = {
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                telefono: document.getElementById('telefono').value || null,
+                direccion: document.getElementById('direccion').value || null,
+                rol: rol
+            };
+            
+            if (rol === 'CLIENTE') {
+                data.documentoIdentidad = document.getElementById('documentoIdentidad').value || null;
+            } else if (rol === 'PROVEEDOR') {
+                data.nombreEmpresa = document.getElementById('nombreEmpresa').value;
+                data.rut = document.getElementById('rut').value;
+                data.descripcion = document.getElementById('descripcion').value || null;
+            }
+            
+            try {
+                const response = await ApiClient.post(API_ENDPOINTS.REGISTER, data);
+                
+                AuthManager.saveAuth(response);
+                showAlert('¡Registro exitoso!', 'success');
+                
+                setTimeout(() => {
+                    AuthManager.redirectToDashboard();
+                }, 1000);
+                
+            } catch (error) {
+                showAlert(error.message || 'Error al registrarse');
+            }
+        });
+    </script>
+</body>
+</html>

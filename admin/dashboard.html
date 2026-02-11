@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - RentTools</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="../index.html" class="navbar-brand">🔧 RentTools</a>
+            <ul class="navbar-menu">
+                <li><span id="user-name"></span></li>
+                <li><a href="#" onclick="AuthManager.logout()">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Panel de Administrador</h1>
+                <p>Gestión completa de la plataforma</p>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3 id="total-usuarios">0</h3>
+                    <p>Usuarios Totales</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <h3 id="total-herramientas">0</h3>
+                    <p>Herramientas</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <h3 id="total-reservas">0</h3>
+                    <p>Reservas</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <h3 id="ingresos-totales">$0</h3>
+                    <p>Ingresos Totales</p>
+                </div>
+            </div>
+
+            <!-- Tabs de navegación -->
+            <div class="card">
+                <div style="display: flex; gap: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-sm btn-primary tab-btn active" data-tab="usuarios">Usuarios</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="categorias">Categorías</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="herramientas">Herramientas</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="reservas">Reservas</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="pagos">Pagos</button>
+                    <button class="btn btn-sm btn-secondary tab-btn" data-tab="devoluciones">Devoluciones</button>
+                </div>
+
+                <!-- Tab: Usuarios -->
+                <div id="tab-usuarios" class="tab-content">
+                    <div class="d-flex justify-between align-center mb-3">
+                        <h2>Gestión de Usuarios</h2>
+                        <button class="btn btn-primary btn-sm" onclick="abrirModalUsuario()">Crear Usuario</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tabla-usuarios">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Categorías -->
+                <div id="tab-categorias" class="tab-content" style="display: none;">
+                    <div class="d-flex justify-between align-center mb-3">
+                        <h2>Gestión de Categorías</h2>
+                        <button class="btn btn-primary btn-sm" onclick="abrirModalCategoria()">Crear Categoría</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tabla-categorias">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Herramientas -->
+                <div id="tab-herramientas" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Todas las Herramientas</h2>
+                    <div class="table-container">
+                        <table id="tabla-herramientas">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Proveedor</th>
+                                    <th>Precio/Día</th>
+                                    <th>Disponible</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Reservas -->
+                <div id="tab-reservas" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Todas las Reservas</h2>
+                    <div class="table-container">
+                        <table id="tabla-reservas">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Herramienta</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Días</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Pagos -->
+                <div id="tab-pagos" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Todos los Pagos</h2>
+                    <div class="table-container">
+                        <table id="tabla-pagos">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Reserva ID</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>N° Transacción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Devoluciones -->
+                <div id="tab-devoluciones" class="tab-content" style="display: none;">
+                    <h2 class="mb-3">Todas las Devoluciones</h2>
+                    <div class="table-container">
+                        <table id="tabla-devoluciones">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Reserva ID</th>
+                                    <th>Fecha Devolución</th>
+                                    <th>Estado Equipo</th>
+                                    <th>Aceptado</th>
+                                    <th>Reporte</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Usuario -->
+    <div id="modal-usuario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Crear Usuario</h3>
+                <button class="modal-close" onclick="cerrarModalUsuario()">&times;</button>
+            </div>
+            <form id="form-usuario">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Apellido *</label>
+                    <input type="text" name="apellido" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña *</label>
+                    <input type="password" name="password" class="form-control" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" name="telefono" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" name="direccion" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Rol *</label>
+                    <select name="rol" class="form-control" required>
+                        <option value="ADMINISTRADOR">Administrador</option>
+                        <option value="PROVEEDOR">Proveedor</option>
+                        <option value="CLIENTE">Cliente</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Crear Usuario</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Categoría -->
+    <div id="modal-categoria" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-categoria-title">Crear Categoría</h3>
+                <button class="modal-close" onclick="cerrarModalCategoria()">&times;</button>
+            </div>
+            <form id="form-categoria">
+                <input type="hidden" name="id">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" class="form-control" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
