@@ -158,6 +158,9 @@ function abrirModalReserva(herramientaId) {
     if (!herramientaSeleccionada) return;
     
     document.getElementById('herramientaId').value = herramientaId;
+    document.getElementById('cantidad-disponible').textContent = herramientaSeleccionada.cantidadDisponible;
+    document.getElementById('cantidad').max = herramientaSeleccionada.cantidadDisponible;
+    
     document.getElementById('herramienta-info').innerHTML = `
         <div class="alert alert-info">
             <strong>${herramientaSeleccionada.nombre}</strong><br>
@@ -167,7 +170,6 @@ function abrirModalReserva(herramientaId) {
         </div>
     `;
     
-    // Establecer fecha mínima como hoy
     const hoy = new Date().toISOString().split('T')[0];
     document.getElementById('fechaInicio').min = hoy;
     document.getElementById('fechaFin').min = hoy;
@@ -184,10 +186,12 @@ function cerrarModalReserva() {
 // Calcular días y costo al cambiar fechas
 document.getElementById('fechaInicio').addEventListener('change', calcularCostoReserva);
 document.getElementById('fechaFin').addEventListener('change', calcularCostoReserva);
+document.getElementById('cantidad').addEventListener('change', calcularCostoReserva);
 
 function calcularCostoReserva() {
     const fechaInicio = document.getElementById('fechaInicio').value;
     const fechaFin = document.getElementById('fechaFin').value;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
     
     if (!fechaInicio || !fechaFin || !herramientaSeleccionada) return;
     
@@ -201,10 +205,21 @@ function calcularCostoReserva() {
         return;
     }
     
-    const costo = dias * parseFloat(herramientaSeleccionada.precioPorDia);
+    let costoPorUnidad;
+    
+    if (herramientaSeleccionada.precioPorSemana && dias >= 7) {
+        const semanas = Math.floor(dias / 7);
+        const diasRestantes = dias % 7;
+        costoPorUnidad = (semanas * parseFloat(herramientaSeleccionada.precioPorSemana)) + 
+                         (diasRestantes * parseFloat(herramientaSeleccionada.precioPorDia));
+    } else {
+        costoPorUnidad = dias * parseFloat(herramientaSeleccionada.precioPorDia);
+    }
+    
+    const costoTotal = costoPorUnidad * cantidad;
     
     document.getElementById('dias-alquiler').textContent = dias;
-    document.getElementById('costo-total').textContent = costo.toFixed(2);
+    document.getElementById('costo-total').textContent = costoTotal.toFixed(2);
 }
 
 document.getElementById('form-reserva').addEventListener('submit', async (e) => {
@@ -213,10 +228,23 @@ document.getElementById('form-reserva').addEventListener('submit', async (e) => 
     
     const fechaInicio = formData.get('fechaInicio');
     const fechaFin = formData.get('fechaFin');
+    const cantidad = parseInt(formData.get('cantidad'));
+    
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
     const diasAlquiler = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
-    const costoTotal = diasAlquiler * parseFloat(herramientaSeleccionada.precioPorDia);
+    
+    let costoPorUnidad;
+    if (herramientaSeleccionada.precioPorSemana && diasAlquiler >= 7) {
+        const semanas = Math.floor(diasAlquiler / 7);
+        const diasRestantes = diasAlquiler % 7;
+        costoPorUnidad = (semanas * parseFloat(herramientaSeleccionada.precioPorSemana)) + 
+                         (diasRestantes * parseFloat(herramientaSeleccionada.precioPorDia));
+    } else {
+        costoPorUnidad = diasAlquiler * parseFloat(herramientaSeleccionada.precioPorDia);
+    }
+    
+    const costoTotal = costoPorUnidad * cantidad;
     
     const data = {
         clienteId: parseInt(formData.get('clienteId')),
@@ -227,7 +255,8 @@ document.getElementById('form-reserva').addEventListener('submit', async (e) => 
         costoTotal: costoTotal,
         estado: 'PENDIENTE',
         direccionEntrega: formData.get('direccionEntrega') || null,
-        notasCliente: formData.get('notasCliente') || null
+        notasCliente: formData.get('notasCliente') || null,
+        cantidad: cantidad
     };
     
     try {
@@ -235,6 +264,7 @@ document.getElementById('form-reserva').addEventListener('submit', async (e) => 
         alert('Reserva creada exitosamente. Espera la confirmación del proveedor.');
         cerrarModalReserva();
         cargarReservas();
+        cargarHerramientas();
         cargarEstadisticas();
     } catch (error) {
         alert(error.message || 'Error al crear reserva');

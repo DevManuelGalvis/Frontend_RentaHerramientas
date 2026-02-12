@@ -221,11 +221,34 @@
                 </div>
                 <div class="form-group">
                     <label>Rol *</label>
-                    <select name="rol" class="form-control" required>
+                    <select name="rol" class="form-control" required id="usuario-rol-select">
+                        <option value="">Selecciona...</option>
                         <option value="ADMINISTRADOR">Administrador</option>
                         <option value="PROVEEDOR">Proveedor</option>
                         <option value="CLIENTE">Cliente</option>
                     </select>
+                </div>
+
+                <div id="usuario-cliente-fields" style="display: none;">
+                    <div class="form-group">
+                        <label>Documento de Identidad</label>
+                        <input type="text" name="documentoIdentidad" class="form-control">
+                    </div>
+                </div>
+                
+                <div id="usuario-proveedor-fields" style="display: none;">
+                    <div class="form-group">
+                        <label>Nombre de la Empresa *</label>
+                        <input type="text" name="nombreEmpresa" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>RUT *</label>
+                        <input type="text" name="rut" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción de la Empresa</label>
+                        <textarea name="descripcion" class="form-control" rows="3"></textarea>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Crear Usuario</button>
             </form>
