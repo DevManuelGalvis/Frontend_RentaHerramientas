@@ -87,16 +87,66 @@ function cerrarModalUsuario() {
 document.getElementById('form-usuario').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
+    const rol = formData.get('rol');
+    
+    // Datos básicos del usuario
+    const usuarioData = {
+        nombre: formData.get('nombre'),
+        apellido: formData.get('apellido'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        telefono: formData.get('telefono') || null,
+        direccion: formData.get('direccion') || null,
+        rol: rol
+    };
     
     try {
-        await ApiClient.post(API_ENDPOINTS.USUARIOS, data);
+        // 1. Crear el usuario
+        const usuarioResponse = await ApiClient.post(API_ENDPOINTS.USUARIOS, usuarioData);
+        
+        // 2. Crear el perfil según el rol
+        if (rol === 'CLIENTE') {
+            const clienteData = {
+                usuarioId: usuarioResponse.id,
+                documentoIdentidad: formData.get('documentoIdentidad') || null
+            };
+            await ApiClient.post(API_ENDPOINTS.CLIENTES, clienteData);
+        } else if (rol === 'PROVEEDOR') {
+            const proveedorData = {
+                usuarioId: usuarioResponse.id,
+                nombreEmpresa: formData.get('nombreEmpresa'),
+                rut: formData.get('rut'),
+                descripcion: formData.get('descripcion') || null
+            };
+            await ApiClient.post(API_ENDPOINTS.PROVEEDORES, proveedorData);
+        }
+        
         alert('Usuario creado exitosamente');
         cerrarModalUsuario();
         cargarUsuarios();
         cargarEstadisticas();
     } catch (error) {
         alert(error.message || 'Error al crear usuario');
+    }
+});
+
+document.getElementById('usuario-rol-select').addEventListener('change', (e) => {
+    const rol = e.target.value;
+    const clienteFields = document.getElementById('usuario-cliente-fields');
+    const proveedorFields = document.getElementById('usuario-proveedor-fields');
+    
+    clienteFields.style.display = 'none';
+    proveedorFields.style.display = 'none';
+    
+    document.querySelector('[name="nombreEmpresa"]').required = false;
+    document.querySelector('[name="rut"]').required = false;
+    
+    if (rol === 'CLIENTE') {
+        clienteFields.style.display = 'block';
+    } else if (rol === 'PROVEEDOR') {
+        proveedorFields.style.display = 'block';
+        document.querySelector('[name="nombreEmpresa"]').required = true;
+        document.querySelector('[name="rut"]').required = true;
     }
 });
 
