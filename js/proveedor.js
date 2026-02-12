@@ -1,4 +1,3 @@
-// js/proveedor.js
 AuthManager.checkAuth(ROLES.PROVEEDOR);
 
 const user = AuthManager.getUser();
@@ -11,7 +10,6 @@ let reservas = [];
 let devoluciones = [];
 let facturas = [];
 
-// ============= TABS =============
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
@@ -30,7 +28,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// ============= CARGAR ESTADÍSTICAS =============
 async function cargarEstadisticas() {
     try {
         const herramientasData = await ApiClient.get(`${API_ENDPOINTS.HERRAMIENTAS}/proveedor/${user.perfilId}`);
@@ -48,7 +45,6 @@ async function cargarEstadisticas() {
     }
 }
 
-// ============= CATEGORÍAS =============
 async function cargarCategorias() {
     try {
         categorias = await ApiClient.get(API_ENDPOINTS.CATEGORIAS);
@@ -64,7 +60,6 @@ function llenarSelectCategorias() {
         categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
 }
 
-// ============= HERRAMIENTAS =============
 async function cargarHerramientas() {
     try {
         herramientas = await ApiClient.get(`${API_ENDPOINTS.HERRAMIENTAS}/proveedor/${user.perfilId}`);
@@ -186,7 +181,6 @@ async function eliminarHerramienta(id) {
     }
 }
 
-// ============= RESERVAS =============
 async function cargarReservas() {
     try {
         reservas = await ApiClient.get(`${API_ENDPOINTS.RESERVAS}/proveedor/${user.perfilId}`);
@@ -249,11 +243,9 @@ async function iniciarReserva(id) {
     }
 }
 
-// ============= DEVOLUCIONES =============
 async function cargarDevoluciones() {
     try {
         const todasDevoluciones = await ApiClient.get(API_ENDPOINTS.DEVOLUCIONES);
-        // Filtrar solo las devoluciones de reservas del proveedor
         devoluciones = todasDevoluciones.filter(d => {
             const reserva = reservas.find(r => r.id === d.reservaId);
             return reserva !== undefined;
@@ -303,7 +295,6 @@ async function aceptarDevolucion(id) {
     }
 }
 
-// ============= FACTURAS =============
 async function cargarFacturas() {
     try {
         facturas = await ApiClient.get(`${API_ENDPOINTS.FACTURAS}/proveedor/${user.perfilId}`);
@@ -331,7 +322,6 @@ function mostrarFacturas() {
     `).join('');
 }
 
-// ============= UTILIDADES =============
 function getBadgeClaseEstado(estado) {
     const clases = {
         'PENDIENTE': 'badge-warning',
@@ -343,7 +333,6 @@ function getBadgeClaseEstado(estado) {
     return clases[estado] || 'badge-info';
 }
 
-// ============= INICIALIZAR =============
 cargarEstadisticas();
 cargarCategorias();
 cargarHerramientas();
