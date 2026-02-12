@@ -1,4 +1,3 @@
-// js/cliente.js
 AuthManager.checkAuth(ROLES.CLIENTE);
 
 const user = AuthManager.getUser();
@@ -11,7 +10,6 @@ let reservas = [];
 let pagos = [];
 let herramientaSeleccionada = null;
 
-// ============= TABS =============
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
@@ -30,7 +28,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// ============= CARGAR ESTADÍSTICAS =============
 async function cargarEstadisticas() {
     try {
         const reservasData = await ApiClient.get(`${API_ENDPOINTS.RESERVAS}/cliente/${user.perfilId}`);
@@ -51,7 +48,6 @@ async function cargarEstadisticas() {
     }
 }
 
-// ============= CATEGORÍAS =============
 async function cargarCategorias() {
     try {
         categorias = await ApiClient.get(API_ENDPOINTS.CATEGORIAS);
@@ -72,7 +68,6 @@ document.getElementById('filtro-categoria').addEventListener('change', (e) => {
     cargarHerramientas(categoriaId || null);
 });
 
-// ============= HERRAMIENTAS =============
 async function cargarHerramientas(categoriaId = null) {
     try {
         const url = categoriaId 
@@ -108,7 +103,6 @@ function mostrarHerramientas() {
     `).join('');
 }
 
-// ============= RESERVAS =============
 async function cargarReservas() {
     try {
         reservas = await ApiClient.get(`${API_ENDPOINTS.RESERVAS}/cliente/${user.perfilId}`);
@@ -183,7 +177,6 @@ function cerrarModalReserva() {
     herramientaSeleccionada = null;
 }
 
-// Calcular días y costo al cambiar fechas
 document.getElementById('fechaInicio').addEventListener('change', calcularCostoReserva);
 document.getElementById('fechaFin').addEventListener('change', calcularCostoReserva);
 document.getElementById('cantidad').addEventListener('change', calcularCostoReserva);
@@ -284,7 +277,6 @@ async function cancelarReserva(id) {
     }
 }
 
-// ============= PAGOS =============
 async function cargarPagos() {
     try {
         pagos = await ApiClient.get(`${API_ENDPOINTS.PAGOS}/cliente/${user.perfilId}`);
@@ -352,7 +344,6 @@ document.getElementById('form-pago').addEventListener('submit', async (e) => {
     }
 });
 
-// ============= DEVOLUCIONES =============
 function abrirModalDevolucion(reservaId) {
     document.getElementById('devolucionReservaId').value = reservaId;
     document.getElementById('modal-devolucion').classList.add('active');
@@ -385,7 +376,6 @@ document.getElementById('form-devolucion').addEventListener('submit', async (e) 
     }
 });
 
-// ============= UTILIDADES =============
 function getBadgeClaseEstado(estado) {
     const clases = {
         'PENDIENTE': 'badge-warning',
@@ -407,7 +397,6 @@ function getBadgeClaseEstadoPago(estado) {
     return clases[estado] || 'badge-info';
 }
 
-// ============= INICIALIZAR =============
 cargarEstadisticas();
 cargarCategorias();
 cargarHerramientas();

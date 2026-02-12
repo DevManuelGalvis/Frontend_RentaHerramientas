@@ -1,4 +1,3 @@
-// js/admin.js
 AuthManager.checkAuth(ROLES.ADMIN);
 
 const user = AuthManager.getUser();
@@ -11,7 +10,6 @@ let reservas = [];
 let pagos = [];
 let devoluciones = [];
 
-// ============= TABS =============
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
@@ -30,7 +28,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// ============= CARGAR ESTADÍSTICAS =============
 async function cargarEstadisticas() {
     try {
         const [usuariosData, herramientasData, reservasData, ingresosTotales] = await Promise.all([
@@ -49,7 +46,6 @@ async function cargarEstadisticas() {
     }
 }
 
-// ============= USUARIOS =============
 async function cargarUsuarios() {
     try {
         usuarios = await ApiClient.get(API_ENDPOINTS.USUARIOS);
@@ -89,7 +85,6 @@ document.getElementById('form-usuario').addEventListener('submit', async (e) => 
     const formData = new FormData(e.target);
     const rol = formData.get('rol');
     
-    // Datos básicos del usuario
     const usuarioData = {
         nombre: formData.get('nombre'),
         apellido: formData.get('apellido'),
@@ -101,10 +96,8 @@ document.getElementById('form-usuario').addEventListener('submit', async (e) => 
     };
     
     try {
-        // 1. Crear el usuario
         const usuarioResponse = await ApiClient.post(API_ENDPOINTS.USUARIOS, usuarioData);
         
-        // 2. Crear el perfil según el rol
         if (rol === 'CLIENTE') {
             const clienteData = {
                 usuarioId: usuarioResponse.id,
@@ -162,7 +155,6 @@ async function desactivarUsuario(id) {
     }
 }
 
-// ============= CATEGORÍAS =============
 async function cargarCategorias() {
     try {
         categorias = await ApiClient.get(API_ENDPOINTS.CATEGORIAS);
@@ -246,7 +238,6 @@ async function eliminarCategoria(id) {
     }
 }
 
-// ============= HERRAMIENTAS =============
 async function cargarHerramientas() {
     try {
         herramientas = await ApiClient.get(API_ENDPOINTS.HERRAMIENTAS);
@@ -287,7 +278,6 @@ async function eliminarHerramienta(id) {
     }
 }
 
-// ============= RESERVAS =============
 async function cargarReservas() {
     try {
         reservas = await ApiClient.get(API_ENDPOINTS.RESERVAS);
@@ -313,7 +303,6 @@ function mostrarReservas() {
     `).join('');
 }
 
-// ============= PAGOS =============
 async function cargarPagos() {
     try {
         pagos = await ApiClient.get(API_ENDPOINTS.PAGOS);
@@ -338,7 +327,6 @@ function mostrarPagos() {
     `).join('');
 }
 
-// ============= DEVOLUCIONES =============
 async function cargarDevoluciones() {
     try {
         devoluciones = await ApiClient.get(API_ENDPOINTS.DEVOLUCIONES);
@@ -362,7 +350,6 @@ function mostrarDevoluciones() {
     `).join('');
 }
 
-// ============= UTILIDADES =============
 function getBadgeClaseEstado(estado) {
     const clases = {
         'PENDIENTE': 'badge-warning',
@@ -384,7 +371,6 @@ function getBadgeClaseEstadoPago(estado) {
     return clases[estado] || 'badge-info';
 }
 
-// ============= INICIALIZAR =============
 cargarEstadisticas();
 cargarUsuarios();
 cargarCategorias();
