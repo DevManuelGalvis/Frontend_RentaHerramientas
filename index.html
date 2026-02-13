@@ -103,7 +103,7 @@
 
             container.innerHTML = herramientas.map(h => `
                 <div class="card">
-                    ${h.imagenUrl ? `<img src="${h.imagenUrl}" alt="${h.nombre}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 0.5rem; margin-bottom: 1rem;">` : ''}
+                    ${h.imagenUrl ? `<img src="${h.imagenUrl}" alt="${h.nombre}" class="img-herramienta">` : ''}
                     <h3>${h.nombre}</h3>
                     <p><strong>Categoría:</strong> ${h.nombreCategoria}</p>
                     <p><strong>Proveedor:</strong> ${h.nombreProveedor}</p>

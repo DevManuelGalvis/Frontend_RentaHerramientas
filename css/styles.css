@@ -438,3 +438,20 @@ tr:hover {
         grid-template-columns: 1fr;
     }
 }
+
+.img-herramienta {
+    width: 100%;
+    height: 250px; /* Puedes ajustar esta altura según prefieras */
+    object-fit: contain; /* Esto hace que la imagen se vea COMPLETA sin recortes */
+    background-color: #f3f4f6; /* Un fondo gris claro para que los espacios vacíos se vean limpios */
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* En pantallas más grandes, podemos darle un poco más de aire */
+@media (min-width: 1024px) {
+    .img-herramienta {
+        height: 300px;
+    }
+}

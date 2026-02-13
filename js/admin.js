@@ -226,15 +226,36 @@ document.getElementById('form-categoria').addEventListener('submit', async (e) =
     }
 });
 
-async function eliminarCategoria(id) {
-    if (!confirm('¿Estás seguro de eliminar esta categoría?')) return;
-    
+async function eliminarCategoria(id, confirmado = false) {
+    if (!confirmado && !confirm('¿Estás seguro de eliminar esta categoría?')) return;
+
     try {
-        await ApiClient.delete(`${API_ENDPOINTS.CATEGORIAS}/${id}`);
+        await ApiClient.delete(`${API_ENDPOINTS.CATEGORIAS}/${id}?confirmar=${confirmado}`);
+        
+        // Si llega aquí sin error, todo bien
         alert('Categoría eliminada exitosamente');
-        cargarCategorias();
+        location.reload(); 
+        
     } catch (error) {
-        alert(error.message || 'Error al eliminar categoría');
+        // Si el error es de JSON pero la herramienta se eliminó (es un falso error)
+        if (error.message.includes("JSON") || error.message.includes("unexpected end")) {
+            alert('Categoría eliminada exitosamente');
+            location.reload();
+            return;
+        }
+
+        // Si es el mensaje de advertencia del backend
+        const esErrorDeIntegridad = error.message.includes("tiene herramientas") || 
+                                    error.message.includes("reservas");
+
+        if (esErrorDeIntegridad) {
+            if (confirm(error.message)) {
+                // IMPORTANTE: Retornamos la llamada para que el flujo siga
+                return eliminarCategoria(id, true);
+            }
+        } else {
+            alert(error.message);
+        }
     }
 }
 
@@ -265,16 +286,34 @@ function mostrarHerramientas() {
     `).join('');
 }
 
-async function eliminarHerramienta(id) {
-    if (!confirm('¿Estás seguro de eliminar esta herramienta?')) return;
+async function eliminarHerramienta(id, confirmado = false) {
+    if (!confirmado && !confirm('¿Estás seguro de eliminar esta herramienta?')) return;
     
     try {
-        await ApiClient.delete(`${API_ENDPOINTS.HERRAMIENTAS}/${id}`);
+        await ApiClient.delete(`${API_ENDPOINTS.HERRAMIENTAS}/${id}?confirmar=${confirmado}`);
+        
         alert('Herramienta eliminada exitosamente');
-        cargarHerramientas();
-        cargarEstadisticas();
+        location.reload();
+        
     } catch (error) {
-        alert(error.message || 'Error al eliminar herramienta');
+        // Manejo del error de JSON vacío (Falso positivo de error)
+        if (error.message.includes("JSON") || error.message.includes("unexpected end")) {
+            alert('Herramienta eliminada exitosamente');
+            location.reload();
+            return;
+        }
+
+        const esErrorDeIntegridad = error.message.includes("reserva") || 
+                                    error.message.includes("pago") || 
+                                    error.message.includes("factura");
+
+        if (esErrorDeIntegridad) {
+            if (confirm(error.message)) {
+                return eliminarHerramienta(id, true);
+            }
+        } else {
+            alert(error.message);
+        }
     }
 }
 

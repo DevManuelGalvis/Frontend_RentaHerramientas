@@ -168,16 +168,34 @@ document.getElementById('form-herramienta').addEventListener('submit', async (e)
     }
 });
 
-async function eliminarHerramienta(id) {
-    if (!confirm('¿Estás seguro de eliminar esta herramienta?')) return;
+async function eliminarHerramienta(id, confirmado = false) {
+    if (!confirmado && !confirm('¿Estás seguro de eliminar esta herramienta?')) return;
     
     try {
-        await ApiClient.delete(`${API_ENDPOINTS.HERRAMIENTAS}/${id}`);
+        await ApiClient.delete(`${API_ENDPOINTS.HERRAMIENTAS}/${id}?confirmar=${confirmado}`);
+        
         alert('Herramienta eliminada exitosamente');
-        cargarHerramientas();
-        cargarEstadisticas();
+        location.reload();
+        
     } catch (error) {
-        alert(error.message || 'Error al eliminar herramienta');
+        // Manejo del error de JSON vacío (Falso positivo de error)
+        if (error.message.includes("JSON") || error.message.includes("unexpected end")) {
+            alert('Herramienta eliminada exitosamente');
+            location.reload();
+            return;
+        }
+
+        const esErrorDeIntegridad = error.message.includes("reserva") || 
+                                    error.message.includes("pago") || 
+                                    error.message.includes("factura");
+
+        if (esErrorDeIntegridad) {
+            if (confirm(error.message)) {
+                return eliminarHerramienta(id, true);
+            }
+        } else {
+            alert(error.message);
+        }
     }
 }
 
